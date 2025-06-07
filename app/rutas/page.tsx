@@ -1,12 +1,28 @@
+"use client"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ArrowRight, Filter, Plane, Search } from "lucide-react"
+import { Filter, Plane, Search } from "lucide-react"
 import Link from "next/link"
+import { useEffect, useState } from "react"
 
 export default function RutasPage() {
+
+  const [rutas, setRutas] = useState<any[]>([]);
+  const [pagina, setPagina] = useState(1);
+  const pageSize = 5;
+
+  const totalPaginas = Math.ceil(rutas.length / pageSize);
+  const rutasPagina = rutas.slice((pagina - 1) * pageSize, pagina * pageSize);  
+
+  useEffect(() => {
+    fetch("/api/ruta")
+      .then(res => res.json())
+      .then(data => setRutas(data.rutas || []));
+  }, []);
+
   return (
     <div className="flex min-h-screen flex-col">
       <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 pl-3">
@@ -60,8 +76,8 @@ export default function RutasPage() {
                       <SelectValue placeholder="Tomar en cuenta el precio" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="precioNo">No</SelectItem>
                       <SelectItem value="precioSi">Si</SelectItem>
+                      <SelectItem value="precioNo">No</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -129,112 +145,56 @@ export default function RutasPage() {
                         <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
-                    <TableBody>
+                   <TableBody>
+                    {rutas.length === 0 ? (
                       <TableRow>
-                        <TableCell>
-                          <div className="font-medium">Ciudad de México</div>
-                          <div className="text-sm text-muted-foreground">MEX</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">Madrid</div>
-                          <div className="text-sm text-muted-foreground">MAD</div>
-                        </TableCell>
-                        <TableCell>10h 30m</TableCell>
-                        <TableCell>Iberia, Aeroméxico</TableCell>
-                        <TableCell className="text-right font-bold text-sky-600">$12,500 MXN</TableCell>
-                        <TableCell>
-                          <Button size="sm">Ver</Button>
+                        <TableCell colSpan={6} className="text-center text-muted-foreground">
+                          No hay rutas registradas.
                         </TableCell>
                       </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          <div className="font-medium">Cancún</div>
-                          <div className="text-sm text-muted-foreground">CUN</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">Nueva York</div>
-                          <div className="text-sm text-muted-foreground">JFK</div>
-                        </TableCell>
-                        <TableCell>4h 15m</TableCell>
-                        <TableCell>American, JetBlue</TableCell>
-                        <TableCell className="text-right font-bold text-sky-600">$8,200 MXN</TableCell>
-                        <TableCell>
-                          <Button size="sm">Ver</Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          <div className="font-medium">Guadalajara</div>
-                          <div className="text-sm text-muted-foreground">GDL</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">Los Ángeles</div>
-                          <div className="text-sm text-muted-foreground">LAX</div>
-                        </TableCell>
-                        <TableCell>3h 45m</TableCell>
-                        <TableCell>Volaris, Delta</TableCell>
-                        <TableCell className="text-right font-bold text-sky-600">$6,800 MXN</TableCell>
-                        <TableCell>
-                          <Button size="sm">Ver</Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          <div className="font-medium">Monterrey</div>
-                          <div className="text-sm text-muted-foreground">MTY</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">Chicago</div>
-                          <div className="text-sm text-muted-foreground">ORD</div>
-                        </TableCell>
-                        <TableCell>4h 05m</TableCell>
-                        <TableCell>United, Aeroméxico</TableCell>
-                        <TableCell className="text-right font-bold text-sky-600">$7,500 MXN</TableCell>
-                        <TableCell>
-                          <Button size="sm">Ver</Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          <div className="font-medium">Ciudad de México</div>
-                          <div className="text-sm text-muted-foreground">MEX</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">Bogotá</div>
-                          <div className="text-sm text-muted-foreground">BOG</div>
-                        </TableCell>
-                        <TableCell>4h 50m</TableCell>
-                        <TableCell>Avianca, Aeroméxico</TableCell>
-                        <TableCell className="text-right font-bold text-sky-600">$9,300 MXN</TableCell>
-                        <TableCell>
-                          <Button size="sm">Ver</Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          <div className="font-medium">Tijuana</div>
-                          <div className="text-sm text-muted-foreground">TIJ</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">Ciudad de México</div>
-                          <div className="text-sm text-muted-foreground">MEX</div>
-                        </TableCell>
-                        <TableCell>3h 25m</TableCell>
-                        <TableCell>Volaris, VivaAerobus</TableCell>
-                        <TableCell className="text-right font-bold text-sky-600">$2,100 MXN</TableCell>
-                        <TableCell>
-                          <Button size="sm">Ver</Button>
-                        </TableCell>
-                      </TableRow>
-                    </TableBody>
+                    ) : (
+                      rutas.map((ruta) => (
+                        <TableRow key={ruta.id}>
+                          <TableCell>
+                            <div className="font-medium">{ruta.origen}</div>
+                            <div className="text-sm text-muted-foreground">{ruta.origen_codigo || ""}</div>
+                          </TableCell>
+                          <TableCell>
+                            <div className="font-medium">{ruta.destino}</div>
+                            <div className="text-sm text-muted-foreground">{ruta.destino_codigo || ""}</div>
+                          </TableCell>
+                          <TableCell>{ruta.duracion}</TableCell>
+                          <TableCell>{ruta.empresa}</TableCell>
+                          <TableCell className="text-right font-bold text-sky-600">
+                            {ruta.precio ? `Bs. ${Number(ruta.precio).toLocaleString()}` : "—"}
+                          </TableCell>
+                          <TableCell>
+                            <Button size="sm">Ver</Button>
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
                   </Table>
                 </CardContent>
                 <CardFooter className="flex justify-between">
-                  <Button variant="outline" disabled>
+                  <Button
+                    variant="outline"
+                    disabled={pagina === 1}
+                    onClick={() => setPagina(pagina - 1)}
+                  >
                     Anterior
                   </Button>
-                  <div className="text-sm text-muted-foreground">Página 1 de 9</div>
-                  <Button variant="outline">Siguiente</Button>
+                  <div className="text-sm text-muted-foreground">
+                    Página {pagina} de {totalPaginas}
+                  </div>
+                  <Button
+                    variant="outline"
+                    disabled={pagina === totalPaginas}
+                    onClick={() => setPagina(pagina + 1)}
+                  >
+                    Siguiente
+                  </Button>
                 </CardFooter>
               </Card>
             </TabsContent>
