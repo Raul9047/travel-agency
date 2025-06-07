@@ -10,12 +10,22 @@ import { useEffect, useState } from "react"
 
 export default function RutasPage() {
 
+  const [ciudades, setCiudades] = useState<any[]>([]);
+
   const [rutas, setRutas] = useState<any[]>([]);
   const [pagina, setPagina] = useState(1);
   const pageSize = 5;
 
   const totalPaginas = Math.ceil(rutas.length / pageSize);
-  const rutasPagina = rutas.slice((pagina - 1) * pageSize, pagina * pageSize);  
+  const rutasPagina = rutas.slice((pagina - 1) * pageSize, pagina * pageSize);
+
+  const rutasTerrestres = rutas.filter(ruta => ruta.tipo?.toLowerCase() === "terrestre");
+  const rutasAereas = rutas.filter(ruta => ruta.tipo?.toLowerCase() === "aerea");
+
+  const totalPaginasTerrestres = Math.ceil(rutasTerrestres.length / pageSize);
+  const totalPaginasAereas = Math.ceil(rutasAereas.length / pageSize);
+  const rutasPaginaTerrestres = rutasTerrestres.slice((pagina - 1) * pageSize, pagina * pageSize);
+  const rutasPaginaAereas = rutasAereas.slice((pagina - 1) * pageSize, pagina * pageSize);
 
   useEffect(() => {
     fetch("/api/ruta")
@@ -118,8 +128,8 @@ export default function RutasPage() {
             <div className="flex justify-between items-center mb-6">
               <TabsList>
                 <TabsTrigger value="todas">Todos los tipos</TabsTrigger>
-                <TabsTrigger value="nacionales">Terrestres</TabsTrigger>
-                <TabsTrigger value="internacionales">Aéreos</TabsTrigger>
+                <TabsTrigger value="terrestres">Terrestres</TabsTrigger>
+                <TabsTrigger value="aereas">Aéreos</TabsTrigger>
               </TabsList>
               <Button variant="outline" size="sm" className="gap-2">
                 <Filter className="h-4 w-4" />
@@ -131,7 +141,7 @@ export default function RutasPage() {
               <Card>
                 <CardHeader>
                   <CardTitle>Todas las rutas disponibles</CardTitle>
-                  <CardDescription>Mostrando 50 rutas desde diferentes aeropuertos de origen</CardDescription>
+                  <CardDescription>Mostrando rutas desde diferentes origen</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -141,19 +151,18 @@ export default function RutasPage() {
                         <TableHead>Destino</TableHead>
                         <TableHead>Duración</TableHead>
                         <TableHead>Empresa</TableHead>
-                        <TableHead className="text-right">Precio desde</TableHead>
-                        <TableHead></TableHead>
+                        <TableHead className="text-right">Precio</TableHead>
                       </TableRow>
                     </TableHeader>
                    <TableBody>
-                    {rutas.length === 0 ? (
+                    {rutasPagina.length === 0 ? (
                       <TableRow>
                         <TableCell colSpan={6} className="text-center text-muted-foreground">
                           No hay rutas registradas.
                         </TableCell>
                       </TableRow>
                     ) : (
-                      rutas.map((ruta) => (
+                      rutasPagina.map((ruta) => (
                         <TableRow key={ruta.id}>
                           <TableCell>
                             <div className="font-medium">{ruta.origen}</div>
@@ -199,11 +208,11 @@ export default function RutasPage() {
               </Card>
             </TabsContent>
 
-            <TabsContent value="nacionales">
+            <TabsContent value="terrestres">
               <Card>
                 <CardHeader>
-                  <CardTitle>Rutas nacionales</CardTitle>
-                  <CardDescription>Mostrando rutas entre aeropuertos dentro de México</CardDescription>
+                  <CardTitle>Rutas terrestres</CardTitle>
+                  <CardDescription>Mostrando rutas Terrestres</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -213,77 +222,71 @@ export default function RutasPage() {
                         <TableHead>Destino</TableHead>
                         <TableHead>Duración</TableHead>
                         <TableHead>Empresa</TableHead>
-                        <TableHead className="text-right">Precio desde</TableHead>
+                        <TableHead className="text-right">Precio</TableHead>
                         <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      <TableRow>
-                        <TableCell>
-                          <div className="font-medium">Ciudad de México</div>
-                          <div className="text-sm text-muted-foreground">MEX</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">Cancún</div>
-                          <div className="text-sm text-muted-foreground">CUN</div>
-                        </TableCell>
-                        <TableCell>2h 15m</TableCell>
-                        <TableCell>Aeroméxico, Volaris, VivaAerobus</TableCell>
-                        <TableCell className="text-right font-bold text-sky-600">$1,800 MXN</TableCell>
-                        <TableCell>
-                          <Button size="sm">Ver</Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          <div className="font-medium">Guadalajara</div>
-                          <div className="text-sm text-muted-foreground">GDL</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">Monterrey</div>
-                          <div className="text-sm text-muted-foreground">MTY</div>
-                        </TableCell>
-                        <TableCell>1h 45m</TableCell>
-                        <TableCell>Volaris, VivaAerobus</TableCell>
-                        <TableCell className="text-right font-bold text-sky-600">$1,500 MXN</TableCell>
-                        <TableCell>
-                          <Button size="sm">Ver</Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          <div className="font-medium">Tijuana</div>
-                          <div className="text-sm text-muted-foreground">TIJ</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">Ciudad de México</div>
-                          <div className="text-sm text-muted-foreground">MEX</div>
-                        </TableCell>
-                        <TableCell>3h 25m</TableCell>
-                        <TableCell>Volaris, VivaAerobus</TableCell>
-                        <TableCell className="text-right font-bold text-sky-600">$2,100 MXN</TableCell>
-                        <TableCell>
-                          <Button size="sm">Ver</Button>
-                        </TableCell>
-                      </TableRow>
+                      {rutasPaginaTerrestres.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center text-muted-foreground">
+                            No hay rutas terrestres registradas.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        rutasPaginaTerrestres.map((ruta) => (
+                          <TableRow key={ruta.id}>
+                            <TableCell>
+                              <div className="font-medium">{ruta.origen}</div>
+                              <div className="text-sm text-muted-foreground">{ruta.origen_codigo || ""}</div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="font-medium">{ruta.destino}</div>
+                              <div className="text-sm text-muted-foreground">{ruta.destino_codigo || ""}</div>
+                            </TableCell>
+                            <TableCell>{ruta.duracion}</TableCell>
+                            <TableCell>{ruta.empresa}</TableCell>
+                            <TableCell className="text-right font-bold text-sky-600">
+                              {ruta.precio ? `Bs. ${Number(ruta.precio).toLocaleString()}` : "—"}
+                            </TableCell> 
+                            <TableCell>
+                              <Button size="sm">Ver</Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </CardContent>
-                <CardFooter className="flex justify-between">
-                  <Button variant="outline" disabled>
-                    Anterior
-                  </Button>
-                  <div className="text-sm text-muted-foreground">Página 1 de 5</div>
-                  <Button variant="outline">Siguiente</Button>
-                </CardFooter>
+                {rutasTerrestres.length > pageSize && (
+                  <CardFooter className="flex justify-between">
+                    <Button
+                      variant="outline"
+                      disabled={pagina === 1}
+                      onClick={() => setPagina(pagina - 1)}
+                    >
+                      Anterior
+                    </Button>
+                    <div className="text-sm text-muted-foreground">
+                      Página {pagina} de {totalPaginasTerrestres}
+                    </div>
+                    <Button
+                      variant="outline"
+                      disabled={pagina === totalPaginasTerrestres}
+                      onClick={() => setPagina(pagina + 1)}
+                    >
+                      Siguiente
+                    </Button>
+                  </CardFooter>
+                )}
               </Card>
             </TabsContent>
 
-            <TabsContent value="internacionales">
+            <TabsContent value="aereas">
               <Card>
                 <CardHeader>
-                  <CardTitle>Rutas internacionales</CardTitle>
-                  <CardDescription>Mostrando rutas desde México hacia destinos internacionales</CardDescription>
+                  <CardTitle>Rutas aéreas</CardTitle>
+                  <CardDescription>Mostrando rutas Aéreas</CardDescription>
                 </CardHeader>
                 <CardContent>
                   <Table>
@@ -293,69 +296,63 @@ export default function RutasPage() {
                         <TableHead>Destino</TableHead>
                         <TableHead>Duración</TableHead>
                         <TableHead>Empresa</TableHead>
-                        <TableHead className="text-right">Precio desde</TableHead>
+                        <TableHead className="text-right">Precio</TableHead>
                         <TableHead></TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      <TableRow>
-                        <TableCell>
-                          <div className="font-medium">Ciudad de México</div>
-                          <div className="text-sm text-muted-foreground">MEX</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">Madrid</div>
-                          <div className="text-sm text-muted-foreground">MAD</div>
-                        </TableCell>
-                        <TableCell>10h 30m</TableCell>
-                        <TableCell>Iberia, Aeroméxico</TableCell>
-                        <TableCell className="text-right font-bold text-sky-600">$12,500 MXN</TableCell>
-                        <TableCell>
-                          <Button size="sm">Ver</Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          <div className="font-medium">Cancún</div>
-                          <div className="text-sm text-muted-foreground">CUN</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">Nueva York</div>
-                          <div className="text-sm text-muted-foreground">JFK</div>
-                        </TableCell>
-                        <TableCell>4h 15m</TableCell>
-                        <TableCell>American, JetBlue</TableCell>
-                        <TableCell className="text-right font-bold text-sky-600">$8,200 MXN</TableCell>
-                        <TableCell>
-                          <Button size="sm">Ver</Button>
-                        </TableCell>
-                      </TableRow>
-                      <TableRow>
-                        <TableCell>
-                          <div className="font-medium">Guadalajara</div>
-                          <div className="text-sm text-muted-foreground">GDL</div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="font-medium">Los Ángeles</div>
-                          <div className="text-sm text-muted-foreground">LAX</div>
-                        </TableCell>
-                        <TableCell>3h 45m</TableCell>
-                        <TableCell>Volaris, Delta</TableCell>
-                        <TableCell className="text-right font-bold text-sky-600">$6,800 MXN</TableCell>
-                        <TableCell>
-                          <Button size="sm">Ver</Button>
-                        </TableCell>
-                      </TableRow>
+                      {rutasPaginaAereas.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="text-center text-muted-foreground">
+                            No hay rutas terrestres registradas.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        rutasPaginaAereas.map((ruta) => (
+                          <TableRow key={ruta.id}>
+                            <TableCell>
+                              <div className="font-medium">{ruta.origen}</div>
+                              <div className="text-sm text-muted-foreground">{ruta.origen_codigo || ""}</div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="font-medium">{ruta.destino}</div>
+                              <div className="text-sm text-muted-foreground">{ruta.destino_codigo || ""}</div>
+                            </TableCell>
+                            <TableCell>{ruta.duracion}</TableCell>
+                            <TableCell>{ruta.empresa}</TableCell>
+                            <TableCell className="text-right font-bold text-sky-600">
+                              {ruta.precio ? `Bs. ${Number(ruta.precio).toLocaleString()}` : "—"}
+                            </TableCell> 
+                            <TableCell>
+                              <Button size="sm">Ver</Button>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </CardContent>
-                <CardFooter className="flex justify-between">
-                  <Button variant="outline" disabled>
-                    Anterior
-                  </Button>
-                  <div className="text-sm text-muted-foreground">Página 1 de 7</div>
-                  <Button variant="outline">Siguiente</Button>
-                </CardFooter>
+                {rutasAereas.length > pageSize && (
+                  <CardFooter className="flex justify-between">
+                    <Button
+                      variant="outline"
+                      disabled={pagina === 1}
+                      onClick={() => setPagina(pagina - 1)}
+                    >
+                      Anterior
+                    </Button>
+                    <div className="text-sm text-muted-foreground">
+                      Página {pagina} de {totalPaginasAereas}
+                    </div>
+                    <Button
+                      variant="outline"
+                      disabled={pagina === totalPaginasAereas}
+                      onClick={() => setPagina(pagina + 1)}
+                    >
+                      Siguiente
+                    </Button>
+                  </CardFooter>
+                )}
               </Card>
             </TabsContent>
           </Tabs>

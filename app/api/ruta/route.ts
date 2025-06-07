@@ -10,13 +10,18 @@ export async function GET(req: NextRequest) {
           c2.nombre AS destino,
           er.duracion,
           er.precio,
-          e.nombre AS empresa
+          e.nombre AS empresa,
+          e.tipo
         FROM empresa_ruta er
         JOIN empresa e ON er.empresa_id = e.id
         JOIN ruta r ON er.ruta_id = r.id
         JOIN ciudad c1 ON r.origen_id = c1.id
         JOIN ciudad c2 ON r.destino_id = c2.id
         ORDER BY origen, destino, empresa`
+    );
+
+    const [ciudades]: any = await db.query(
+      `SELECT id, nombre FROM ciudad ORDER BY nombre`
     );
 
     return NextResponse.json({ rutas });
