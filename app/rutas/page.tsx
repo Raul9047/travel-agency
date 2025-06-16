@@ -9,12 +9,14 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 
 export default function RutasPage() {
-
-  const [ciudades, setCiudades] = useState<any[]>([]);
+  
+  const [ciudades, setCiudades] = useState<{id: number, nombre: string}[]>([]);
+  const [empresas, setEmpresas] = useState<any[]>([]);
 
   const [rutas, setRutas] = useState<any[]>([]);
   const [pagina, setPagina] = useState(1);
   const pageSize = 5;
+
 
   const totalPaginas = Math.ceil(rutas.length / pageSize);
   const rutasPagina = rutas.slice((pagina - 1) * pageSize, pagina * pageSize);
@@ -27,11 +29,22 @@ export default function RutasPage() {
   const rutasPaginaTerrestres = rutasTerrestres.slice((pagina - 1) * pageSize, pagina * pageSize);
   const rutasPaginaAereas = rutasAereas.slice((pagina - 1) * pageSize, pagina * pageSize);
 
+  const [empresaSeleccionada, setEmpresaSeleccionada] = useState<string | null>(null);
+
   useEffect(() => {
-    fetch("/api/ruta")
+    let url = "/api/ruta";
+    if (empresaSeleccionada) {
+      url += `?empresa_id=${empresaSeleccionada}`;
+    }
+
+    fetch(url)
       .then(res => res.json())
-      .then(data => setRutas(data.rutas || []));
-  }, []);
+      .then(data => {
+        setRutas(data.rutas || []);
+        setEmpresas(data.empresas || []);
+        setCiudades(data.ciudades || []);
+      });
+  }, [empresaSeleccionada]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -69,12 +82,16 @@ export default function RutasPage() {
 
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Empresa</label>
-                  <Select>
+                  <Select onValueChange={(value) => setEmpresaSeleccionada(value)}>
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccionar empresa" />
                     </SelectTrigger>
-                    <SelectContent>                  
-                      <SelectItem value="mex">Ciudad de México (MEX)</SelectItem>
+                    <SelectContent>
+                      {empresas.map(empresa => (
+                        <SelectItem key={empresa.id} value={empresa.id.toString()}>
+                          {empresa.nombre}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
@@ -98,11 +115,16 @@ export default function RutasPage() {
                     <SelectTrigger>
                       <SelectValue placeholder="Seleccionar origen" />
                     </SelectTrigger>
-                    <SelectContent>                  
-                      <SelectItem value="mex">Ciudad de México (MEX)</SelectItem>
+                    <SelectContent>
+                      {ciudades.map(ciudad => (
+                        <SelectItem key={ciudad.id} value={ciudad.id.toString()}>
+                          {ciudad.nombre}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>
+                
                 <div className="space-y-2">
                   <label className="text-sm font-medium">Destino</label>
                   <Select>
@@ -110,7 +132,11 @@ export default function RutasPage() {
                       <SelectValue placeholder="Seleccionar destino" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="mad">Madrid (MAD)</SelectItem>
+                      {ciudades.map(ciudad => (
+                        <SelectItem key={ciudad.id} value={ciudad.id.toString()}>
+                          {ciudad.nombre}
+                        </SelectItem>
+                      ))}
                     </SelectContent>
                   </Select>
                 </div>

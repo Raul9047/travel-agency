@@ -3,6 +3,8 @@ import { db } from "@/app/api/mysql";
 
 export async function GET(req: NextRequest) {
   try {
+    const empresaId = req.nextUrl.searchParams.get("empresa_id");
+
     const [rutas]: any = await db.query(
       `SELECT 
           r.id,
@@ -20,12 +22,35 @@ export async function GET(req: NextRequest) {
         ORDER BY origen, destino, empresa`
     );
 
-    const [ciudades]: any = await db.query(
-      `SELECT id, nombre FROM ciudad ORDER BY nombre`
+    const [empresas]: any = await db.query(
+      `SELECT id, nombre, tipo FROM empresa ORDER BY nombre`
     );
 
-    return NextResponse.json({ rutas });
+    const ciudadesQuery = `
+      SELECT DISTINCT c.id, c.nombre
+      FROM ciudad c
+      JOIN ruta r ON c.id = r.origen_id
+      JOIN empresa_ruta er ON er.ruta_id = r.id
+      WHERE (? IS NULL OR er.empresa_id = ?)
+
+      UNION
+
+      SELECT DISTINCT c.id, c.nombre
+      FROM ciudad c
+      JOIN ruta r ON c.id = r.destino_id
+      JOIN empresa_ruta er ON er.ruta_id = r.id
+      WHERE (? IS NULL OR er.empresa_id = ?)
+
+      ORDER BY nombre;
+    `;
+
+    const params = [empresaId, empresaId, empresaId, empresaId];
+
+    const [ciudades]: any = await db.query(ciudadesQuery, params);
+
+    return NextResponse.json({ rutas, empresas, ciudades });
   } catch (error) {
+    console.error(error);
     return NextResponse.json({ error: "Error al obtener las rutas" }, { status: 500 });
   }
 }

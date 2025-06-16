@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/app/api/mysql";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, context: { params: { id: string } }) {
   try {
-    const id = params.id;
+    const id = context.params.id;
     // Obtener datos de la empresa
     const [empresaRows]: any = await db.query(
       `SELECT e.id, e.nombre, e.tipo, e.descripcion, c.nombre AS ciudad_base

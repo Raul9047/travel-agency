@@ -1,18 +1,21 @@
 export class Grafo<T> {
-    private listaVertices: T[];
-    private listaAdyacencias: number[][];
+    protected listaVertices: T[];
+    protected listaAdyacencias: number[][];
     private NRO_VERTICE_INVALIDO: number = -1;
 
-    constructorSin() {
+    constructor();
+
+    constructor(listaVertices: Iterable<T>);
+
+    constructor(listaVertices?: Iterable<T>) {
         this.listaVertices = [];
         this.listaAdyacencias = [];
-    }
 
-    constructor(listaVertices: T[] = [], adyacencias: number[][] = []) {
-        this.listaVertices = [...listaVertices];
-        this.listaAdyacencias = adyacencias.length
-            ? adyacencias.map(lst => [...lst])
-            : listaVertices.map(() => []);
+        if (listaVertices) {
+            for (const unVertice of listaVertices) {
+                this.insertarVertice(unVertice);
+            }
+        }
     }
 
     public getVerticeIndex(unVertice: T): number {
@@ -48,7 +51,7 @@ export class Grafo<T> {
         return Math.floor(cantidadDeAristas / 2) + lazo;
     }
 
-    private insertarVertice(unVertice: T): void {
+    public insertarVertice(unVertice: T): void {
         let nroVertice = this.getVerticeIndex(unVertice);
         if (nroVertice !== this.NRO_VERTICE_INVALIDO) {
             throw new Error("El vertice ya existe en el grafo");
@@ -78,9 +81,8 @@ export class Grafo<T> {
     public agregarArista(origen: T, destino: T): void {
         const idxOrigen = this.getVerticeIndex(origen);
         const idxDestino = this.getVerticeIndex(destino);
-        if (idxOrigen === this.NRO_VERTICE_INVALIDO || idxDestino === this.NRO_VERTICE_INVALIDO) {
-            throw new Error("Uno o ambos vértices no existen");
-        }
+        this.validarVertice(origen);
+        this.validarVertice(destino);
         if (!this.listaAdyacencias[idxOrigen].includes(idxDestino)) {
             this.listaAdyacencias[idxOrigen].push(idxDestino);
         }
@@ -90,21 +92,47 @@ export class Grafo<T> {
     }
 
     public eliminarArista(origen: T, destino: T): void {
-        const idxOrigen = this.getVerticeIndex(origen);
-        const idxDestino = this.getVerticeIndex(destino);
-        if (idxOrigen === this.NRO_VERTICE_INVALIDO || idxDestino === this.NRO_VERTICE_INVALIDO) {
-            throw new Error("Uno o ambos vértices no existen");
+        if (this.existeAdyacencia(origen, destino)) {
+            const idxOrigen = this.getVerticeIndex(origen);
+            const idxDestino = this.getVerticeIndex(destino);
+
+            let adyacentesDelOrigen : number[] = this.listaAdyacencias[idxOrigen];
+            const destinoEnOrigen = adyacentesDelOrigen.indexOf(idxDestino);
+            if (destinoEnOrigen !== -1) {
+                adyacentesDelOrigen.splice(destinoEnOrigen, 1);
+            }
+            if (idxOrigen !== idxDestino) {
+                let adyacentesDelDestino : number[] = this.listaAdyacencias[idxDestino];
+                const origenEnDestino = adyacentesDelDestino.indexOf(idxOrigen);
+                if (origenEnDestino !== -1) {
+                    adyacentesDelDestino.splice(origenEnDestino, 1);
+                }
+            }
         }
-        this.listaAdyacencias[idxOrigen] = this.listaAdyacencias[idxOrigen].filter(idx => idx !== idxDestino);
-        this.listaAdyacencias[idxDestino] = this.listaAdyacencias[idxDestino].filter(idx => idx !== idxOrigen);
     }
 
-    public adyacentesDe(unVertice: T): T[] {
+    public adyacentesDeVertice(unVertice: T): T[] {
         const idx = this.getVerticeIndex(unVertice);
         if (idx === this.NRO_VERTICE_INVALIDO) {
             throw new Error("El vertice no existe en el grafo");
         }
         return this.listaAdyacencias[idx].map(i => this.listaVertices[i]);
+    }
+
+    public existeAdyacencia(verticeOrigen: T, verticeDestino: T) : boolean {
+        this.validarVertice(verticeOrigen);
+        this.validarVertice(verticeDestino);
+        const nroVerticeOrigen = this.getVerticeIndex(verticeOrigen);
+        const nroVerticeDestino = this.getVerticeIndex(verticeDestino);
+        let adyacentesDelVerticeOrigen : number[] = this.listaAdyacencias[nroVerticeOrigen];
+        return adyacentesDelVerticeOrigen.includes(nroVerticeDestino);
+    }
+
+    public gradoDelVertice(unVertice: T) : number {
+        this.validarVertice(unVertice);
+        let nroVertice = this.getVerticeIndex(unVertice);
+        let adyacentesDelVertice : number[] = this.listaAdyacencias[nroVertice];
+        return adyacentesDelVertice.length;
     }
 
     public limpiar(): void {

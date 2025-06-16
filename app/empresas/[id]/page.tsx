@@ -51,6 +51,8 @@ export default function EmpresaDetallesPage() {
       });
   }, [id]);
 
+  if (!id) return null;
+
   if (loading) return <div className="p-1">Cargando...</div>;
   if (!empresa) return <div className="p-2">Empresa no encontrada</div>;
 
